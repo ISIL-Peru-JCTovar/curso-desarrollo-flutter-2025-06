@@ -17,7 +17,7 @@ class AddClientScreen extends StatefulWidget {
 
 class _AddClientScreenState extends State<AddClientScreen> {
 
-  final _formKey = GlobalKey<FormState>();
+  final _miFormKey = GlobalKey<FormState>();
   final nombreController = TextEditingController();
   final correoController = TextEditingController();
   final celularController = TextEditingController();
@@ -50,16 +50,43 @@ class _AddClientScreenState extends State<AddClientScreen> {
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      final file = File(pickedFile.path);
+      //-- Obtener el tamaño de la foto actual elegida
+      final tamanioFoto = await file.length();
+      //-- Definir el tamaño maximo de la foto
+      const maxTamanioFotoInBytes = 2 * 1024 * 1024; //-- 2 Mb
+      //-- Validar si el tamaño es superior al permitido
+      if (tamanioFoto > maxTamanioFotoInBytes) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('La imagen seleccionada no debe superar los 2 Mb'))
+        );
+        return;
+      }
+      //-- Validar las dimensiones (ancho x alto)
+      final imagenEnBytes = await file.readAsBytes();
+      final imagenFoto = await decodeImageFromList(imagenEnBytes);
+      const minWidth = 100;
+      const maxWidth = 1024;
+      const minHeight = 100;
+      const maxHeight = 1024;
+      if ((imagenFoto.width < minWidth || imagenFoto.width > maxWidth) ||
+          (imagenFoto.height < minHeight || imagenFoto.height > maxHeight)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('La imagen seleccionada debe tener al menos entre ${minWidth}-${maxWidth} de ancho y entre ${minHeight}-${maxHeight} de alto'))
+        );
+        return;
+      }
+      //-- Seteando la foto
       setState(() {
-        _foto = File(picked.path);
+        _foto = File(pickedFile.path);
       });
     }
   }
 
   void _guardarCliente() async {
-    if (_formKey.currentState!.validate()) {
+    if (_miFormKey.currentState!.validate()) {
       final cliente = {
         'nombre': nombreController.text,
         'nacionalidad': nacionalidad,
@@ -81,7 +108,7 @@ class _AddClientScreenState extends State<AddClientScreen> {
       //await DatabaseHelper.instance.insert(cliente);
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Cliente guardado correctamente')));
-      _formKey.currentState!.reset();
+      _miFormKey.currentState!.reset();
     }
   }
 
@@ -92,11 +119,20 @@ class _AddClientScreenState extends State<AddClientScreen> {
         body: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Form(
-              key: _formKey,
+              key: _miFormKey,
               child: ListView(children: [
-                TextField(
+                TextFormField(
                   controller: nombreController,
                   decoration: InputDecoration(labelText: 'Nombre y Apellidos'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Debe ingresar el Nombre y Apellidos';
+                    } else if (value.length < 3) {
+                      return 'Valor muy corto para Nombre y Apellidos, debe ser mayor a 3 caracteres';
+                    } else if (value.length > 100) {
+                      return 'Valor muy largo para Nombre y Apellidos, debe ser menor o igual a 100 caracteres';
+                    }
+                  },
                 ),
                 SizedBox(height: 10),
                 Text('Nacionalidad'),
@@ -116,10 +152,19 @@ class _AddClientScreenState extends State<AddClientScreen> {
                     setState(() => nacionalidad = value!);
                   },
                 ),
-                TextField(
+                TextFormField(
                   controller: correoController,
                   decoration: InputDecoration(labelText: 'Correo'),
                   keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Debe ingresar el Correo';
+                    } else if (value.length < 3) {
+                      return 'Valor muy corto para Correo, debe ser mayor a 3 caracteres';
+                    } else if (value.length > 100) {
+                      return 'Valor muy largo para Correo, debe ser menor o igual a 100 caracteres';
+                    }
+                  },
                 ),
                 TextField(
                   controller: celularController,
@@ -143,7 +188,9 @@ class _AddClientScreenState extends State<AddClientScreen> {
                   },
                 ),
                 ElevatedButton(
-                    onPressed: _pickImage, child: Text('Seleccionar Foto')),
+                    onPressed: _pickImage,
+                    child: Text('Seleccionar Foto')
+                ),
                 if (_foto != null) Image.file(_foto!, height: 100),
                 SizedBox(height: 10),
                 ElevatedButton(
