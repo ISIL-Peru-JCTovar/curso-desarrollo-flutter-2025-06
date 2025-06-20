@@ -199,26 +199,26 @@ class _AddClientScreenState extends State<AddClientScreen> {
                 GestureDetector(
                   onTap: _guardarCliente,
                   child: Container(
-                            width: double.infinity,
-                            margin: const EdgeInsets.symmetric(vertical: 20),
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                            decoration: BoxDecoration(
-                              color: Colors.blue,
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 4,
-                                  offset: Offset(0, 2),
-                                )
-                              ],
-                            ),
-                            child: const Center(
-                              child: Text(
-                                'Guardar Cliente',
-                                style: TextStyle(color: Colors.white, fontSize: 16),
-                              ),
-                            ),
+                    width: double.infinity,
+                    margin: const EdgeInsets.symmetric(vertical: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
+                        )
+                      ],
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'Guardar Cliente',
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ),
                   ),
                 ),
               ])),

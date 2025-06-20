@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_app_sample_crm_1/db/api_cliente_helper.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_app_sample_crm_1/db/database_helper.dart';
 import 'package:flutter_app_sample_crm_1/models/client.dart';
@@ -16,6 +17,11 @@ class ClientListScreen extends StatefulWidget {
 class _ClientListScreenState extends State<ClientListScreen> {
 
   List<Client> clients = [];
+
+  int limite = 5;
+  int offset = 0;
+  bool estaCargando = false;
+  bool existeRegistros = true;
 
   @override
   void initState() {
@@ -65,6 +71,21 @@ class _ClientListScreenState extends State<ClientListScreen> {
             icon: const Icon(Icons.refresh),
             tooltip: 'Refrescar',
             onPressed: _loadClients,
+          ),
+          IconButton(
+            icon: const Icon(Icons.cloud_download),
+            tooltip: 'Sincronizar',
+            onPressed: () async {
+              await ApiClienteHelper.instance.syncClientsWithLocalDb();
+              _loadClients();
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.cloud_upload),
+            tooltip: 'Actualizar',
+            onPressed: () async {
+              await ApiClienteHelper.instance.syncLocalDbWithClients();
+            },
           ),
         ],
       ),

@@ -27,8 +27,7 @@ class DatabaseHelper {
 
   Future<Database> _initDatabase() async {
     final path = join(await getDatabasesPath(), _databaseName);
-    return await openDatabase(path,
-        version: _databaseVersion, onCreate: _onCreate);
+    return await openDatabase(path, version: _databaseVersion, onCreate: _onCreate);
   }
 
   Future _onCreate(Database db, int version) async {
@@ -55,12 +54,12 @@ class DatabaseHelper {
   Future<int> update(Map<String, dynamic> row) async {
     Database db = await instance.database;
     int id = row['_id'];
-    return await db.update(table, row, where: '$columnId = ?', whereArgs: [id]);
+    return await db.update(table, row, where: '_id = ?', whereArgs: [id]);
   }
 
   Future<int> delete(int id) async {
     Database db = await instance.database;
-    return await db.delete(table, where: '$columnId = ?', whereArgs: [id]);
+    return await db.delete(table, where: '_id = ?', whereArgs: [id]);
   }
 
   Future<List<Client>> getClients() async {
@@ -68,15 +67,5 @@ class DatabaseHelper {
     final List<Map<String, dynamic>> result = await db.query(table);
     return result.map((e) => Client.fromMap(e)).toList();
   }
-
-  Future<void> insertOrUpdateClient(Client client) async {
-    final db = await database;
-    final existing = await db.query(table, where: '$columnId = ?', whereArgs: [client.id]); //SQLLite
-    if (existing.isEmpty) {
-      await insert(client.toMapApi());
-    } else {
-      await update(client.toMapApi());
-    }
-  }
-
+  
 }
